@@ -9,7 +9,7 @@ local({
              email = "Stefan.Roediger@b-tu.de", 
              role = c("aut","cre"))),
     about = list(desc = "GUI interface to perfrom melting curve analysis",
-                 version = "0.0.1-1", url = "")
+                 version = "0.0.1-2", url = "")
   )
   
   ## help page
@@ -25,14 +25,14 @@ local({
                                            package = list(c(name = "MBmca", min = "0.0.3-5")))
   # General settings
   
-  # Definition of plot labels and appearence
+  # Definition of plot labels and appearance
   generic.plot.options <- rk.plotOptions()
   plot.main <- rk.XML.input(label = "Main title", initial = "Melting curve analysis")
   plot.xlab <- rk.XML.input(label = "Abscissa label", initial = "Temperature")
   plot.ylab <- rk.XML.input(label = "Ordinate label", initial = "-d(RFU)/dT")
   
   var.select <- rk.XML.varselector(label = "Select data")
-  selected.x <- rk.XML.varslot(label = "Temperature", source = var.select, classes = "numeric", types = "number", required = TRUE)
+  selected.x <- rk.XML.varslot(label = "Temperature", source = var.select, types = "number", required = TRUE)
   var.data <- rk.XML.varslot(label = "Signal", source = var.select, multi = TRUE, classes = "numeric", types = "number", required = TRUE)
   
   
@@ -96,9 +96,11 @@ local({
     js.var.data <- rk.JS.vars(var.data, join = ", "), # get selected vars
     echo("xy <- as.matrix(data.frame(rk.list(", selected.x,", ", js.var.data,")))\n\n"),
     
-    echo("res.smooth <- cbind(xy[, 1], apply(xy[, -1], 2, function(i) {\n"),
-    echo("\txy.in <- mcaSmoother(xy[, 1], i, bgadj = ", bgadj,", df.fact = ", df.fact.spin,")[, 2]\n"),
-    echo("}))\n"),
+    echo("
+	  res.smooth <- cbind(xy[, 1], apply(xy[, -1], 2, function(i) {
+	  xy.in <- mcaSmoother(xy[, 1], i, bgadj = ", bgadj,", df.fact = ", df.fact.spin,")[, 2]
+	  }))
+    \n"),
     
     echo("res.min <- lapply(2L:ncol(res.smooth), function(i) {\n"),
     echo("\tout <- diffQ2(cbind(res.smooth[, 1], res.smooth[, i])"),
